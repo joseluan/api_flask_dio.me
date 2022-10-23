@@ -37,7 +37,7 @@ class Developer(Resource):
     def put(self, id):
         developers[id] = request.get_json()
         return {
-            'status': 'ok', 
+            'status': 'ok',
             'mesage': "Developer update with success"
         }
     def delete(self, id):
