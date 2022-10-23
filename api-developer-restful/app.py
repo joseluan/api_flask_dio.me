@@ -39,7 +39,7 @@ class Developer(Resource):
         return {
             'status': 'ok',
             'mesage': "Developer update with success"
-        }
+        } 
     def delete(self, id):
         developers.pop(id)
         return {
