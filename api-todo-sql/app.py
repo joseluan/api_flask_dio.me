@@ -1,16 +1,31 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from models import Users, Todos
+from flask_httpauth import HTTPBasicAuth
 
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 api = Api(app)
+
+USERS_AUTH = {
+    'root': '123'
+}
+
+
+@auth.verify_password
+def verify(login, password):
+    if not(login, password): 
+        return False
+
+    return USERS_AUTH.get(login) == password
 
 
 class User(Resource):
     
+    @auth.login_required
     def get(self, name):        
         try:
-            user = Users.query.filter_by(name=name).first()        
+            user = Users.query.filter_by(name=name).first()
             response = {
                 'id': user.id,
                 'name': user.name,
@@ -27,8 +42,11 @@ class User(Resource):
                 'status': 'erro',
                 'mesage': "General error"
             }
+
+        return response
     
-    
+
+    @auth.login_required
     def put(self, name):        
         try:
             user = Users.query.filter_by(name=name).first()        
@@ -56,7 +74,10 @@ class User(Resource):
                 'mesage': "General error"
             }
    
-   
+        return response
+
+    
+    @auth.login_required
     def delete(self, name):        
         try:            
             user = Users.query.filter_by(name=name).first()        
@@ -82,7 +103,7 @@ class User(Resource):
 
 class ListUsers(Resource):
     
-    
+    @auth.login_required
     def get(self): 
         users = Users.query.all()
         users = [{'id': u.id, 'name': u.name, 'age': u.age} for u in users]
@@ -90,12 +111,14 @@ class ListUsers(Resource):
 
 class ListTodos(Resource):
 
+    @auth.login_required
     def get(self):
         todos = Todos.query.all()
 
         todos = [{'id': t.id, 'name': t.name, 'name_user': t.user.name} for t in todos]
         return todos
 
+    @auth.login_required
     def post(self):
         payload = request.get_json()
         try:        

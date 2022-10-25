@@ -3,18 +3,28 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = create_engine('sqlite:///api-todo-sql/database.db')
+class Database():
 
-db_session = scoped_session(
-    sessionmaker(
-        autocommit=False,
-        bind=engine
-    )
-)
+    def __init__(self):
+        self.engine = create_engine('sqlite:///api-todo-sql/database.db')
 
+        self.db_session = scoped_session(
+            sessionmaker(
+                autocommit=False,
+                bind=self.engine
+            )
+        )
+
+
+    def __exit__(self):
+        self.db_session.close()
+
+
+
+database = Database()
 
 Base = declarative_base()
-Base.query = db_session.query_property()
+Base.query = database.db_session.query_property()
 
 class Users(Base):
     __tablename__='users'
@@ -26,13 +36,13 @@ class Users(Base):
         return f'<User {self.name} - {self.age}>'
 
     def save(self):
-        db_session.add(self)
-        db_session.commit()
+        database.db_session.add(self)
+        database.db_session.commit()
     
     
     def delete(self):
-        db_session.delete(self)
-        db_session.commit()
+        database.db_session.delete(self)
+        database.db_session.commit()
     
 
 class Todos(Base):
@@ -46,16 +56,16 @@ class Todos(Base):
         return f'<Todos {self.name} - {self.age} - {self.user.name}> '
 
     def save(self):
-        db_session.add(self)
-        db_session.commit()
+        database.db_session.add(self)
+        database.db_session.commit()
     
     def delete(self):
-        db_session.delete(self)
-        db_session.commit()
+        database.db_session.delete(self)
+        database.db_session.commit()
         
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=database.engine)
 
 
 if __name__ == '__main__':
