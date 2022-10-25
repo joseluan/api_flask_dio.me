@@ -1,31 +1,31 @@
-from models import People, db_session
+from models import Users, db_session
 
 def search():
-    people = People.query.all()
-    print(people)
+    user = Users.query.all()
+    print(user)
 
 
-def insert_people():
-    person = People(name='chico', age=24)
+def insert_user():
+    person = Users(name='maria', age=78)
     db_session.add(person)
     db_session.commit()
     print(person)
 
 
-def update_people():
-    person = People.query.filter_by(name='chico').first()
+def update_user():
+    person = Users.query.filter_by(name='chico').first()
     person.age = 90
     db_session.add(person)
     db_session.commit()
 
 
-def delete_people():
-    person = People.query.filter_by(name='maria').first()
+def delete_user():
+    person = Users.query.filter_by(name='maria').first()
     db_session.delete(person)
     db_session.commit()
 
 if __name__ == '__main__':
-    #insert_people()
-    #update_people()
-    delete_people()
+    insert_user()
+    #update_user()
+    #delete_user()
     search()

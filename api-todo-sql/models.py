@@ -3,7 +3,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
-engine = create_engine('sqlite:///api-todo-sql/todo.db', convert_unicode=True)
+engine = create_engine('sqlite:///api-todo-sql/database.db')
 
 db_session = scoped_session(
     sessionmaker(
@@ -16,25 +16,43 @@ db_session = scoped_session(
 Base = declarative_base()
 Base.query = db_session.query_property()
 
-class People(Base):
-    __tablename__='people'
+class Users(Base):
+    __tablename__='users'
     id = Column(Integer, primary_key=True)
     name = Column(String(40), index=True)
     age = Column(Integer)
 
     def __repr__(self):
-        return f'<People {self.name} - {self.age}> '
+        return f'<User {self.name} - {self.age}>'
 
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+    
+    
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()
+    
 
-class Todo(Base):
-    __tablename__='todo'
+class Todos(Base):
+    __tablename__='todos'
     id = Column(Integer, primary_key=True)
     name = Column(String(80), index=True)
-    people_id = Column(Integer, ForeignKey('people.id'))
-    people = relationship('People')
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship('Users')
 
     def __repr__(self):
-        return f'<Todo {self.name} - {self.age}> '
+        return f'<Todos {self.name} - {self.age} - {self.user.name}> '
+
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+    
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()
+        
 
 def init_db():
     Base.metadata.create_all(bind=engine)
